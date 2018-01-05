@@ -1,3 +1,6 @@
 python/.ipynb_checkpoints
 p.sh*
 *.DS_Store
+gen
+*.pyc
+*.log

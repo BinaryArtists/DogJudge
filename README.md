@@ -1,21 +1,41 @@
-
 # 爬取百度图片各种狗狗的图片，使用caffe训练模型分类
 
-### tag:
 ______
+## 扩展
 
-selenium
-PhantomJS
-sklearn
-BeautifulSoup
-caffe
+1. [hirohe/facerec-python](https://github.com/hirohe/facerec-python)
+
+______
+## 依赖
+
+* selenium
+    * [selenium的常见异常](http://blog.csdn.net/u010983763/article/details/77196619)
+    * [Selenium错误提示](http://blog.csdn.net/mufenglin01/article/details/72627675)
+* PhantomJS
+* sklearn
+* [BeautifulSoup](http://beautifulsoup.readthedocs.io/zh_CN/latest/)
+    * lxml
+    * html5lib
+* caffe
+* [chromedriver](https://www.cnblogs.com/buchiany/p/6379305.html), [download](http://npm.taobao.org/mirrors/chromedriver/), [put-to-path](https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver), [version，note.txt内有支持chrome的版本](http://blog.csdn.net/leejeff/article/details/52935706)
+    * [XPath Tester / Evaluator，也是不错的小工具集网站](https://www.freeformatter.com/xpath-tester.html)
 
 部分依赖文件见当前目录 \*.py
 
 caffe的安装等配置请自行查阅，可以先只编译一个only cpu的
 
-____
 
+______
+## 项目
+
+### 目录
+
+- gen 存储中间生成文件
+- spider 爬虫
+- train 训练
+- pred 预测
+
+______
 ## 1. 代理获取
 
 爬一些提供免费代理的网站，获取到的代理要根据速度要求等check，
