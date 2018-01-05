@@ -5,6 +5,16 @@ import warnings
 g_disable = False
 g_only_debug = False
 
+def printf(text):
+    global g_disable, g_only_debug
+
+    if g_disable:
+        return
+
+    if g_only_debug:
+        return
+        
+    print text
 
 def exception(e, rs=False):
     logging.exception(e)

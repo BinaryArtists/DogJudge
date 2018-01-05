@@ -2,10 +2,11 @@
 import threading
 import os
 import PIL.Image
-import ZCommonUtil
-import ZLog
+from tool import util
+# import ZLog
+from tool import logger
 import time
-from selenium import webdriver
+from selenium import webdriver # from 文件夹 import 模块名
 import selenium.webdriver.support.ui as ui
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from SpiderProxy import SpiderProxy
@@ -60,24 +61,6 @@ K_SCROLL_SLEEP_TIME = 3
 K_COLLECT_CNT = 2000
 K_COLLECT_PROCESS_CNT = 3
 
-
-# @add_process_wrapper
-def do_spider(proxy, back_proxys, search_name):
-    """
-    from ProcessMonitor import add_process_wrapper
-    @add_process_wrapper
-    代码地址：https://github.com/bbfamily/monitor_parallel
-    如不需要控制多进程可以注释掉
-
-    :param proxy:
-    :param back_proxys:
-    :param search_name:
-    :return:
-    """
-    bd_img = SpiderBdImg(proxy, back_proxys)
-    bd_img.search_img_by_name(search_name)
-
-
 # @add_process_wrapper
 def do_spider_parallel(proxy_df, ind, search_name):
     """
@@ -90,18 +73,23 @@ def do_spider_parallel(proxy_df, ind, search_name):
     :param search_name:
     :return:
     """
+
     proxy_list = [proxy_df.ix[index] for index in np.arange(len(proxy_df))]
+
+    logger.printf('do spider parallel entry, ind = %d, container.count = %d' %(ind, len(proxy_list)))
+
     if g_enable_proxy:
         back_proxys = random.sample(proxy_list, 10)
     else:
         random.shuffle(proxy_list)
         back_proxys = proxy_list
+
     proxy = proxy_list[ind]
-    bd_img = SpiderBdImg(proxy, back_proxys)
-    bd_img.search_img_by_name(search_name)
+    manager = SpiderManager(proxy, back_proxys)
+    manager.crawl_image_by_name(search_name)
 
 
-def spider_bd_img(search_list, use_cache=False):
+def spider_main(search_list, use_cache=False):
     if use_cache:
         proxy_df = SpiderProxy.read_csv()
     else:
@@ -124,7 +112,7 @@ def spider_bd_img(search_list, use_cache=False):
     parallel(delayed(do_spider_parallel)(proxy_df, ind, search_name) for ind, search_name in enumerate(search_list))
 
 
-class SpiderBdImg(object):
+class SpiderManager(object):
     def __init__(self, a_proxy, back_proxys=None):
         self.proxy = a_proxy
         if back_proxys is None:
@@ -137,7 +125,7 @@ class SpiderBdImg(object):
             if len(self.back_proxys) > 0:
                 self.proxy = self.back_proxys.pop()
                 continue
-            raise RuntimeError('SpiderBdImg __init_work failed!!!')
+            raise RuntimeError('SpiderManager __init_work failed!!!')
 
     def __init_work(self, a_proxy):
         try:
@@ -181,7 +169,7 @@ class SpiderBdImg(object):
 
             return True
         except Exception as e:
-            ZLog.exception(e)
+            logger.exception(e)
             return False
 
     def _down_load_img_stream(self, img_url, file_name, headers, proxy_dict, thread_lock, img_url_thumb=None):
@@ -193,7 +181,7 @@ class SpiderBdImg(object):
                     for chunk in response.iter_content(chunk_size=1024):
                         now_time = time.time()
                         if now_time - start_time > 90:
-                            ZLog.debug('now_time - start_time > 90')
+                            logger.debug('now_time - start_time > 90')
                             raise RuntimeError("now_time - start_time > 90")
                         if chunk:  # filter out keep-alive new chunks
                             f.write(chunk)
@@ -213,11 +201,11 @@ class SpiderBdImg(object):
                 self.collect_cnt += 1
 
             if img_url_thumb is None:
-                ZLog.debug('down_load_img img_url_thumb ok!')
+                logger.debug('down_load_img img_url_thumb ok!')
             return True
         else:
             if img_url_thumb is None:
-                ZLog.debug('down_load_img fail url={} code={}'.format(img_url, response.status_code))
+                logger.debug('down_load_img fail url={} code={}'.format(img_url, response.status_code))
                 return False
             return self._down_load_img_stream(img_url_thumb, file_name, headers, proxy_dict, thread_lock,
                                               img_url_thumb=None)
@@ -243,11 +231,11 @@ class SpiderBdImg(object):
                 self.collect_cnt += 1
 
             if img_url_thumb is None:
-                ZLog.debug('down_load_img img_url_thumb ok!')
+                logger.debug('down_load_img img_url_thumb ok!')
             return True
         else:
             if img_url_thumb is None:
-                ZLog.debug('down_load_img fail url={} code={}'.format(img_url, response.status_code))
+                logger.debug('down_load_img fail url={} code={}'.format(img_url, response.status_code))
                 return False
             """
                  原始地址下载失败，改为下载thumb，要是再失败了就失败了
@@ -259,8 +247,8 @@ class SpiderBdImg(object):
         img_url = url_dict['url']
         img_url_thumb = url_dict['url_thumb']
         file_name = self.img_dir + Md5Helper.mkmd5frombinary(img_url) + '.jpg'
-        if ZCommonUtil.file_exist(file_name):
-            ZLog.debug('{} has already exist'.format(img_url))
+        if util.file_exist(file_name):
+            logger.debug('{} has already exist'.format(img_url))
             """
                 也还是应该算成功收集了
             """
@@ -286,7 +274,7 @@ class SpiderBdImg(object):
                                                       img_url_thumb=img_url_thumb)
 
             except Exception:
-                # ZLog.exception(e)
+                # logger.exception(e)
                 return False
 
         bps = self.back_proxys[:]
@@ -342,13 +330,13 @@ class SpiderBdImg(object):
                     break
 
                 if self.collect_cnt >= K_COLLECT_CNT:
-                    ZLog.info('collect_cnt > K_COLLECT_CNT task end')
+                    logger.info('collect_cnt > K_COLLECT_CNT task end')
                     break
 
     def _start_collect_work(self):
         self._do_collect_work()
 
-    def search_img_by_name(self, a_name):
+    def crawl_image_by_name(self, a_name):
 
         print '[Process]search img by name = '+a_name
 
@@ -381,7 +369,8 @@ class SpiderBdImg(object):
         self.driver.implicitly_wait(3)
 
         self.img_dir = IMAGE_ROOT_DIR + a_name + '/'
-        ZCommonUtil.ensure_dir(self.img_dir)
+        
+        util.ensure_dir(self.img_dir)
 
         print '[Process]search img on start collect work at dir = '+self.img_dir
 
@@ -391,10 +380,12 @@ class SpiderBdImg(object):
         self.driver.get_screenshot_as_file('./hj.png')
 
     def phantomjs_screen_html(self):
-        ZCommonUtil.save_file(self.driver.page_source.encode('utf-8'), './hj.html')
+        util.save_file(self.driver.page_source.encode('utf-8'), './hj.html')
 
 
 if __name__ == "__main__":
-    spider_bd_img([u'拉布拉多', u'哈士奇', u'金毛', u'萨摩耶', u'柯基', u'柴犬',
-                   u'边境牧羊犬', u'比格', u'巴吉度', u'德国牧羊犬', u'杜宾', u'泰迪犬', u'博美', u'巴哥', u'牛头梗'],
-                  False)
+    logger.init_logging()
+
+    # u'哈士奇', u'金毛', u'萨摩耶', u'柯基', u'柴犬', u'边境牧羊犬', u'比格', u'巴吉度', u'德国牧羊犬', u'杜宾', u'泰迪犬', u'博美', u'巴哥', u'牛头梗'
+    spider_main([u'拉布拉多'],
+                False)

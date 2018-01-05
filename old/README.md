@@ -1,59 +1,76 @@
+
 # 爬取百度图片各种狗狗的图片，使用caffe训练模型分类
 
-*TODO*
-1. 爬虫过程貌似有问题，不自动结束退出
-2. 爬虫的类设计，毫无扩展性，需要改改
-3. 训练过程review
-4. 预测过程review
+### tag:
+______
 
-## 扩展
-
-1. [hirohe/facerec-python](https://github.com/hirohe/facerec-python)
-
-## 依赖
-
-* selenium
-    * [selenium的常见异常](http://blog.csdn.net/u010983763/article/details/77196619)
-    * [Selenium错误提示](http://blog.csdn.net/mufenglin01/article/details/72627675)
-* PhantomJS
-* sklearn
-* [BeautifulSoup](http://beautifulsoup.readthedocs.io/zh_CN/latest/)
-    * lxml
-    * html5lib
-* caffe
-    * lmdb数据格式常用于单标签数据，像分类等，经常使用lmdb的数据格式。对于回归等问题，或者多标签数据，一般使用h5py数据的格式, 如[深度学习caffe平台--制作自己.lmdb格式数据集及分类标签文件](http://blog.csdn.net/liuweizj12/article/details/52149743)
-* [chromedriver](https://www.cnblogs.com/buchiany/p/6379305.html), [download](http://npm.taobao.org/mirrors/chromedriver/), [put-to-path](https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver), [version，note.txt内有支持chrome的版本](http://blog.csdn.net/leejeff/article/details/52935706)
-    * [XPath Tester / Evaluator，也是不错的小工具集网站](https://www.freeformatter.com/xpath-tester.html)
+selenium
+PhantomJS
+sklearn
+BeautifulSoup
+caffe
 
 部分依赖文件见当前目录 \*.py
 
 caffe的安装等配置请自行查阅，可以先只编译一个only cpu的
 
-## 项目
+____
 
-### 目录
-
-- cfg 配置
-- spi 爬虫
-    - tool 工具类
-    - parse 解析类
-- pro 数据预处理
-- tra 训练
-- prd 预测
-
-- res 额外依赖的资源
-
-- gen 存储中间生成文件
-- old 原作者的展示页
-
-______
 ## 1. 代理获取
 
 爬一些提供免费代理的网站，获取到的代理要根据速度要求等check，
 可扩展爬取的网站，这里只简单爬了两个，代理质量一般，也可以用
 Tor不过好像也不怎么好使了
 
-## 2. 数据爬取
+
+
+```python
+from SpiderProxy import SpiderProxy
+import ZLog
+ZLog.init_logging()
+```
+
+
+```python
+pxy = SpiderProxy()
+pxy.spider_proxy360()
+pxy.spider_xicidaili()
+pxy.check_proxy()
+pxy.save_csv()
+```
+
+    211.151.48.60:8080 check ok
+    139.196.108.68:80 check ok
+    110.178.198.55:8888 check ok
+    106.75.128.90:80 check ok
+    60.194.100.51:80 check ok
+    117.57.188.176:81 check ok
+    45.32.19.10:3128 check ok
+    110.181.181.164:8888 check ok
+    39.87.237.90:81 check ok
+    111.206.81.248:80 check ok
+    47.89.53.92:3128 check ok
+    112.87.106.217:81 check ok
+    218.89.69.211:8088 check ok
+    139.59.180.41:8080 check ok
+    124.133.230.254:80 check ok
+    128.199.186.153:8080 check ok
+    192.249.72.148:3128 check ok
+    112.112.70.116:80 check ok
+    128.199.178.73:8080 check ok
+    178.32.153.219:80 check ok
+    79.141.70.78:3128 check ok
+    119.6.136.122:80 check ok
+    46.219.78.221:8081 check ok
+    proxy_list len=23
+
+
+## 2. 狗狗分类数据获取
+
+
+```python
+import SpiderBdImg
+```
 
 爬虫的可设置项：
 - g_enable_show: 是否使用有界面浏览器还是使用PHANTOMJS
@@ -82,9 +99,36 @@ Tor不过好像也不怎么好使了
 **使用selenium配合BeautifulSoup，requests爬取图片，达到目标数量或者到所有图片停止
 具体请参考SpiderBdImg**
 
-## 3. 清洗数据
 
-人工大概扫一下图片，把太过份的删了，不用太仔细
+```python
+SpiderBdImg.spider_bd_img([u'拉布拉多', u'哈士奇', u'金毛', u'萨摩耶', u'柯基', u'柴犬',
+                            u'边境牧羊犬', u'比格', u'德国牧羊犬', u'杜宾', u'泰迪犬', u'博美', u'巴哥', u'牛头梗'],
+                            use_cache=True)
+```
+
+    makedirs ../gen/baidu/image/金毛
+    makedirs ../gen/baidu/image/哈士奇
+    makedirs ../gen/baidu/image/拉布拉多
+    makedirs ../gen/baidu/image/萨摩耶
+    makedirs ../gen/baidu/image/柯基
+    makedirs ../gen/baidu/image/柴犬
+    makedirs ../gen/baidu/image/边境牧羊犬
+    makedirs ../gen/baidu/image/比格
+    makedirs ../gen/baidu/image/德国牧羊犬
+    makedirs ../gen/baidu/image/杜宾
+    makedirs ../gen/baidu/image/泰迪犬
+    makedirs ../gen/baidu/image/博美
+    makedirs ../gen/baidu/image/巴哥
+    makedirs ../gen/baidu/image/牛头梗
+
+
+## 3.  清洗数据
+
+人工大概扫一下图片，把太过份的删了，不用太仔细，太概扫扫就完事,  这工具其实也是可以自动识别的，先自己扫扫吧
+
+![image](img/Snip20160930_2.png)
+
+![image](img/Snip20160930_5.png)
 
 ## 4. 数据标准化
         
@@ -101,14 +145,27 @@ ImgStdHelper.std_img_from_root_dir('../gen/baidu/image/', 'jpg')
 
 ## 5. 准备训练模型
 
+
 ```python
 !../sh/DogType.sh
 ```
+
 
 ```python
 data_path = '../gen/dog_judge/data.txt'
 print(open(data_path).read(400))
 ```
+
+    哈士奇/001e5dd0f5aa0959503324336f24a5ea.jpeg 1
+    哈士奇/001eae03d6f282d1e9f4cb52331d3e20.jpeg 1
+    哈士奇/0047ea48c765323a53a614d0ed93353b.jpeg 1
+    哈士奇/006e3bd75b2375149dab9d0323b9fc59.jpeg 1
+    哈士奇/0084e12ec1c15235a78489a0f4703859.jpeg 1
+    哈士奇/009724727e40158f5b84a50a7aaaa99b.jpeg 1
+    哈士奇/00a9d66c72bbed2861f632d07a98db8d.jpeg 1
+    哈士奇/00dabcba4437f77859b1d8ed37c85360.jpeg 1
+    
+
 
 #### 生成数字类别对应的label文件
 
@@ -192,15 +249,18 @@ display: 100 snapshot: 5000(其实snapshot大点没事，反正没次crl ＋ c�
 
 ## 8. 使用生成的模型进行分类
 
-#### 更改deploy.prototxt
+### 更改deploy.prototxt
 
 见pb/deploy.prototxt文件。
 
-#### 加载模型
+### 加载模型
+
+
 
 ```python
 import caffe
 ```
+
 
 ```python
 caffe.set_mode_cpu()
@@ -212,8 +272,8 @@ model_mean_file = '../gen/dog_judge/mean.binaryproto' # 均值文件
 net = caffe.Net(model_def, model_weights, caffe.TEST)  
 ```
 
-```python
 
+```python
 # 均值处理
 mean_blob = caffe.proto.caffe_pb2.BlobProto()
 mean_blob.ParseFromString(open(model_mean_file, 'rb').read())
@@ -230,6 +290,7 @@ transformer.set_channel_swap('data', (2,1,0))
 ```
 
     mu = [ 116.2626216   129.17550814  137.46700908]
+
 
 
 ```python
@@ -360,7 +421,8 @@ for layer_name, blob in net.blobs.iteritems():
     prob	(10, 6)
 
 
-#### 使用模型分类图片样本
+### 使用模型分类图片样本
+
 
 ```python
 import numpy as np
@@ -372,10 +434,14 @@ import glob
 plt.rcParams['figure.figsize'] = (10, 10)   
 ```
 
+
 ```python
 class_map = pd.read_csv('../gen/class_map.csv', index_col=0)
 class_map
 ```
+
+
+
 
 <div>
 <table border="1" class="dataframe">
@@ -422,13 +488,20 @@ class_map
 </div>
 
 
+
+
 ```python
 predict_dir = '../abu' 
 img_list = glob.glob(predict_dir + '/*.jpeg')
 len(img_list)
 ```
 
+
+
+
     22
+
+
 
 
 ```python
@@ -453,12 +526,166 @@ for img in img_list:
     predicted class is: 拉布拉多
 
 
+
+![png](img/output_37_2.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_4.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_6.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_8.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_10.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_12.png)
+
+
+    predicted class is: 德国牧羊犬
+
+
+
+![png](img/output_37_14.png)
+
+
+    predicted class is: 博美
+
+
+
+![png](img/output_37_16.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_18.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_20.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_22.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_24.png)
+
+
+    predicted class is: 杜宾
+
+
+
+![png](img/output_37_26.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_28.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_30.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_32.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_34.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_36.png)
+
+
+    predicted class is: 杜宾
+
+
+
+![png](img/output_37_38.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_40.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
+![png](img/output_37_42.png)
+
+
+    predicted class is: 拉布拉多
+
+
+
 ```python
 accuary = (len(img_list) - len(error_prob))/float(len(img_list))
 accuary
 ```
 
+
+
+
     0.8181818181818182
+
+
+
 
 ```python
 for img in error_prob:
@@ -491,3 +718,36 @@ for img in error_prob:
 
 
 ![png](img/output_39_2.png)
+
+
+    probabilities rank 1 label is 博美
+    probabilities rank 2 label is 柴犬
+    probabilities rank 3 label is 拉布拉多
+    probabilities rank 4 label is 哈士奇
+    probabilities rank 5 label is 杜宾
+    probabilities rank 6 label is 德国牧羊犬
+
+
+
+![png](img/output_39_4.png)
+
+
+    probabilities rank 1 label is 杜宾
+    probabilities rank 2 label is 德国牧羊犬
+    probabilities rank 3 label is 柴犬
+    probabilities rank 4 label is 哈士奇
+    probabilities rank 5 label is 拉布拉多
+    probabilities rank 6 label is 博美
+
+
+
+![png](img/output_39_6.png)
+
+
+    probabilities rank 1 label is 杜宾
+    probabilities rank 2 label is 拉布拉多
+    probabilities rank 3 label is 德国牧羊犬
+    probabilities rank 4 label is 柴犬
+    probabilities rank 5 label is 博美
+    probabilities rank 6 label is 哈士奇
+

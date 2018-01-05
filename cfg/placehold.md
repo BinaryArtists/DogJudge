@@ -1,11 +1,5 @@
 # 爬取百度图片各种狗狗的图片，使用caffe训练模型分类
 
-*TODO*
-1. 爬虫过程貌似有问题，不自动结束退出
-2. 爬虫的类设计，毫无扩展性，需要改改
-3. 训练过程review
-4. 预测过程review
-
 ## 扩展
 
 1. [hirohe/facerec-python](https://github.com/hirohe/facerec-python)
@@ -33,18 +27,14 @@ caffe的安装等配置请自行查阅，可以先只编译一个only cpu的
 
 ### 目录
 
-- cfg 配置
-- spi 爬虫
+- spider 爬虫
     - tool 工具类
     - parse 解析类
-- pro 数据预处理
-- tra 训练
-- prd 预测
-
-- res 额外依赖的资源
+- prep 数据预处理
+- train 训练
+- pred 预测
 
 - gen 存储中间生成文件
-- old 原作者的展示页
 
 ______
 ## 1. 代理获取

@@ -1,16 +1,14 @@
 # -*- encoding:utf-8 -*-
 import threading
 import PIL.Image
-import ZLog
+from tool import logger
 import requests
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 import re
-import ZCommonUtil
-from Decorator import warnings_filter
-
-__author__ = 'BBFamily'
+from tool import util
+from tool.decorator import warnings_filter
 
 
 """是否开启代理"""
@@ -98,10 +96,10 @@ class SpiderProxy(object):
                     check_img = PIL.Image.open(test_name)
                     check_img.close()
         except Exception as e:
-            # ZLog.exception(e)
+            # logger.exception(e)
             return
         with thread_lock:
-            ZLog.info('{} check ok'.format(proxy['proxy']))
+            logger.info('{} check ok'.format(proxy['proxy']))
             checked_list.append(proxy)
 
     def check_proxy(self):
@@ -122,10 +120,10 @@ class SpiderProxy(object):
             t.join()
 
         self.proxy_list = checked_list
-        ZLog.info('proxy_list len={}'.format(len(self.proxy_list)))
+        logger.info('proxy_list len={}'.format(len(self.proxy_list)))
 
     def save_csv(self):
         self.proxy_df = pd.DataFrame(self.proxy_list)
         fn = '../gen/proxy/proxy_df'
-        ZCommonUtil.ensure_dir(fn)
+        util.ensure_dir(fn)
         self.proxy_df.to_csv(fn, columns=self.proxy_df.columns, index=True)
