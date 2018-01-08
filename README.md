@@ -6,6 +6,12 @@
 3. 训练过程review
 4. 预测过程review
 
+*值得注意*
+1. [Python爬虫代理池](http://python.jobbole.com/86994/)
+2. [Python 爬虫实战(2)：股票数据定向爬虫](http://python.jobbole.com/88350/?utm_source=blog.jobbole.com&utm_medium=relatedPosts)
+3. [Python 爬虫 (三) - Socket 网络编程](http://python.jobbole.com/88396/?utm_source=blog.jobbole.com&utm_medium=relatedPosts)
+4. [Python 爬虫实战（1）](http://python.jobbole.com/88325/?utm_source=blog.jobbole.com&utm_medium=relatedPosts)
+
 ## 扩展
 
 1. [hirohe/facerec-python](https://github.com/hirohe/facerec-python)
@@ -15,6 +21,7 @@
 * selenium
     * [selenium的常见异常](http://blog.csdn.net/u010983763/article/details/77196619)
     * [Selenium错误提示](http://blog.csdn.net/mufenglin01/article/details/72627675)
+    * [Selenium chrome配置代理Python版](https://www.cnblogs.com/roystime/p/6935543.html)
 * PhantomJS
 * sklearn
 * [BeautifulSoup](http://beautifulsoup.readthedocs.io/zh_CN/latest/)
@@ -24,6 +31,7 @@
     * lmdb数据格式常用于单标签数据，像分类等，经常使用lmdb的数据格式。对于回归等问题，或者多标签数据，一般使用h5py数据的格式, 如[深度学习caffe平台--制作自己.lmdb格式数据集及分类标签文件](http://blog.csdn.net/liuweizj12/article/details/52149743)
 * [chromedriver](https://www.cnblogs.com/buchiany/p/6379305.html), [download](http://npm.taobao.org/mirrors/chromedriver/), [put-to-path](https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver), [version，note.txt内有支持chrome的版本](http://blog.csdn.net/leejeff/article/details/52935706)
     * [XPath Tester / Evaluator，也是不错的小工具集网站](https://www.freeformatter.com/xpath-tester.html)
+    * [Webdriver API中文版](http://blog.csdn.net/lykangjia/article/details/60575534)
 
 部分依赖文件见当前目录 \*.py
 
@@ -33,15 +41,17 @@ caffe的安装等配置请自行查阅，可以先只编译一个only cpu的
 
 ### 目录
 
-- cfg 配置
-- spi 爬虫
+- res 额外依赖的资源
+
+- dat 爬虫、数据预处理
     - tool 工具类
     - parse 解析类
-- pro 数据预处理
-- tra 训练
-- prd 预测
-
-- res 额外依赖的资源
+    - cfg 配置
+- caf 基于caffe的AI
+    - tra 训练
+    - prd 预测
+    - cfg 配置
+- tfw 使用TensorFlow @涛
 
 - gen 存储中间生成文件
 - old 原作者的展示页
@@ -88,15 +98,15 @@ Tor不过好像也不怎么好使了
 
 ## 4. 数据标准化
         
-为caffe的lmdb做准备将图片都转换成jpeg，具体参考ImgStdHelper
+为caffe的lmdb做准备将图片都转换成jpeg，具体参考standardize
         
 运行成功后所有图片为jpeg后缀名称
 
 
 ```python
-import ImgStdHelper
+import standardize
 
-ImgStdHelper.std_img_from_root_dir('../gen/baidu/image/', 'jpg')
+standardize.std_img_from_root_dir('../gen/baidu/image/', 'jpg')
 ```
 
 ## 5. 准备训练模型
