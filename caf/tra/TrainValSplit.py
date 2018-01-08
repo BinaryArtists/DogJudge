@@ -6,9 +6,6 @@ from collections import defaultdict
 import itertools
 import os
 
-__author__ = 'BBFamily'
-
-
 def train_val_split(train_path, n_folds=10):
     if n_folds <= 1:
         raise ValueError('n_folds must > 1')

@@ -1,5 +1,7 @@
 # 爬虫+caffe
 
+几大流行的框架：Pylearn2, Theano, Caffe, Torch, Cuda-covnet，Deeplarning4j
+
 *TODO*
 1. 爬虫过程貌似有问题，不自动结束退出
 2. 爬虫的类设计，毫无扩展性，需要改改
@@ -29,6 +31,7 @@
     * html5lib
 * caffe
     * lmdb数据格式常用于单标签数据，像分类等，经常使用lmdb的数据格式。对于回归等问题，或者多标签数据，一般使用h5py数据的格式, 如[深度学习caffe平台--制作自己.lmdb格式数据集及分类标签文件](http://blog.csdn.net/liuweizj12/article/details/52149743)
+    * [mac安装](http://caffe.berkeleyvision.org/install_osx.html)
 * [chromedriver](https://www.cnblogs.com/buchiany/p/6379305.html), [download](http://npm.taobao.org/mirrors/chromedriver/), [put-to-path](https://github.com/SeleniumHQ/selenium/wiki/ChromeDriver), [version，note.txt内有支持chrome的版本](http://blog.csdn.net/leejeff/article/details/52935706)
     * [XPath Tester / Evaluator，也是不错的小工具集网站](https://www.freeformatter.com/xpath-tester.html)
     * [Webdriver API中文版](http://blog.csdn.net/lykangjia/article/details/60575534)
@@ -98,18 +101,11 @@ Tor不过好像也不怎么好使了
 
 ## 4. 数据标准化
         
-为caffe的lmdb做准备将图片都转换成jpeg，具体参考standardize
-        
-运行成功后所有图片为jpeg后缀名称
-
-
-```python
-import standardize
-
-standardize.std_img_from_root_dir('../gen/baidu/image/', 'jpg')
-```
+为caffe的lmdb做准备将图片都转换成jpeg，具体参考standardize.py, 运行成功后所有图片为jpeg后缀名称
 
 ## 5. 准备训练模型
+
+从这里开始，如果没有系统了解过caffe，先看一下 [caffe入门讲解](https://www.cnblogs.com/empty16/p/4878164.html)
 
 ```python
 !../sh/DogType.sh

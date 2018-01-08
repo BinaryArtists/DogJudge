@@ -5,5 +5,4 @@ CAFEBIN=/root/caffe/build/tools/caffe
 SOLVER=../pb/solver.prototxt
 $CAFEBIN train -solver $SOLVER
 
-
 echo "Done train..."
